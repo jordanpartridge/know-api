@@ -15,7 +15,7 @@ it('can logout successfully', function () {
 
     $response->assertOk()
         ->assertJson([
-            'message' => 'Successfully logged out'
+            'message' => 'Successfully logged out',
         ]);
 
     // Verify user has no more tokens after logout
