@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -43,7 +43,32 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'activated_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isActivated(): bool
+    {
+        return ! is_null($this->activated_at);
+    }
+
+    public function activate(): bool
+    {
+        $this->activated_at = now();
+
+        return $this->save();
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('activated', function ($query) {
+            $query->whereNotNull('activated_at');
+        });
+    }
+
+    public function scopeWithInactive($query)
+    {
+        return $query->withoutGlobalScope('activated');
     }
 }

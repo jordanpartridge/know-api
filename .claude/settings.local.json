@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php artisan:*)"
+      "Bash(php artisan:*)",
+      "Bash(gh issue create:*)",
+      "Bash(rm:*)",
+      "Bash(./vendor/bin/pint)",
+      "Bash(./vendor/bin/pint:*)",
+      "Bash(./vendor/bin/phpstan analyse)",
+      "Bash(./vendor/bin/phpstan analyse --memory-limit=256M)",
+      "Bash(composer quality:*)",
+      "Bash(nmap:*)"
     ],
     "deny": []
   }
