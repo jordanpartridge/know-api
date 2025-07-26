@@ -15,31 +15,17 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', App\Http\Controllers\Auth\LogoutController::class);
 
-        // Knowledge API endpoints (protected)
-        Route::apiResource('knowledge', App\Http\Controllers\KnowledgeController::class);
+        // Knowledge API endpoints (protected) - Single action controllers
+        Route::get('/knowledge', App\Http\Controllers\Knowledge\IndexController::class);
+        Route::post('/knowledge', App\Http\Controllers\Knowledge\StoreController::class);
+        Route::get('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\ShowController::class);
+        Route::put('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\UpdateController::class);
+        Route::delete('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\DestroyController::class);
 
         // Tag management endpoints
-        Route::get('/tags', function () {
-            return \App\Http\Resources\TagResource::collection(\App\Models\Tag::all());
-        });
+        Route::get('/tags', App\Http\Controllers\TagController::class);
 
         // Search endpoint
-        Route::get('/search/knowledge', function (\Illuminate\Http\Request $request) {
-            $query = \App\Models\Knowledge::with(['user', 'gitContext', 'tags']);
-
-            if ($request->has('q')) {
-                $query->search($request->q);
-            }
-
-            // Can search public knowledge or user's own knowledge
-            $query->where(function ($q) use ($request) {
-                $q->where('is_public', true)
-                    ->orWhere('user_id', $request->user()->id);
-            });
-
-            $results = $query->latest()->paginate(10);
-
-            return \App\Http\Resources\KnowledgeResource::collection($results);
-        });
+        Route::get('/search/knowledge', App\Http\Controllers\Knowledge\SearchController::class);
     });
 });
