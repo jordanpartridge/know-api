@@ -8,10 +8,15 @@ use Illuminate\Http\Request;
 
 class IndexController
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
+        $user = $request->user();
+        if (!$user) {
+            abort(401, 'Unauthenticated');
+        }
+        
         $query = Knowledge::with(['user', 'gitContext', 'tags'])
-            ->where('user_id', $request->user()->id);
+            ->where('user_id', $user->id);
 
         // Filter by type if provided
         if ($request->has('type')) {

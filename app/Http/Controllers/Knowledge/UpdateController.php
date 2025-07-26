@@ -9,7 +9,7 @@ use App\Services\GitContextService;
 
 class UpdateController
 {
-    public function __invoke(StoreKnowledgeRequest $request, Knowledge $knowledge, GitContextService $gitContextService)
+    public function __invoke(StoreKnowledgeRequest $request, Knowledge $knowledge, GitContextService $gitContextService): KnowledgeResource
     {
         $validated = $request->validated();
 

@@ -15,7 +15,7 @@ class ActivateUserCommand extends Command
     protected $signature = 'user:activate';
     protected $description = 'Activate a user account';
 
-    public function handle()
+    public function handle(): void
     {
         $totalInactive = User::withInactive()->whereNull('activated_at')->count();
 
@@ -36,7 +36,8 @@ class ActivateUserCommand extends Command
         info('🕐 Recent registrations:');
 
         foreach ($recentUsers as $user) {
-            $this->line("   • {$user->name} ({$user->email}) - {$user->created_at->diffForHumans()}");
+            $createdAt = $user->created_at?->diffForHumans() ?? 'Unknown time';
+            $this->line("   • {$user->name} ({$user->email}) - {$createdAt}");
         }
 
         $this->newLine();
@@ -62,6 +63,10 @@ class ActivateUserCommand extends Command
             );
 
             $user = $recentUsers->find($userId);
+            if (!$user) {
+                $this->error('User not found.');
+                return;
+            }
         } elseif ($method === 'search') {
             $userId = search(
                 label: 'Search for user to activate',
@@ -89,6 +94,10 @@ class ActivateUserCommand extends Command
             }
 
             $user = User::withInactive()->find($userId);
+            if (!$user) {
+                $this->error('User not found.');
+                return;
+            }
         } else {
             // Delete mode
             $this->warn('⚠️  DELETE MODE: This will permanently remove users');
@@ -112,6 +121,10 @@ class ActivateUserCommand extends Command
                 );
 
                 $user = $recentUsers->find($userId);
+                if (!$user) {
+                    $this->error('User not found.');
+                    return;
+                }
             } else {
                 $userId = search(
                     label: 'Search for user to DELETE',
@@ -139,6 +152,10 @@ class ActivateUserCommand extends Command
                 }
 
                 $user = User::withInactive()->find($userId);
+                if (!$user) {
+                    $this->error('User not found.');
+                    return;
+                }
             }
 
             $confirmed = confirm(

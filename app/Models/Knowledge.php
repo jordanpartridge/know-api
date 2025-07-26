@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @use HasFactory<\Database\Factories\KnowledgeFactory>
+ */
 class Knowledge extends Model
 {
+    /** @use HasFactory<\Database\Factories\KnowledgeFactory> */
     use HasFactory;
     protected $fillable = [
         'user_id',
@@ -43,17 +48,29 @@ class Knowledge extends Model
         return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
-    public function scopePublic($query)
+    /**
+     * @param Builder<Knowledge> $query
+     * @return Builder<Knowledge>
+     */
+    public function scopePublic(Builder $query): Builder
     {
         return $query->where('is_public', true);
     }
 
-    public function scopeByType($query, string $type)
+    /**
+     * @param Builder<Knowledge> $query
+     * @return Builder<Knowledge>
+     */
+    public function scopeByType(Builder $query, string $type): Builder
     {
         return $query->where('type', $type);
     }
 
-    public function scopeSearch($query, string $search)
+    /**
+     * @param Builder<Knowledge> $query
+     * @return Builder<Knowledge>
+     */
+    public function scopeSearch(Builder $query, string $search): Builder
     {
         // Use fulltext search for MySQL/PostgreSQL, LIKE for SQLite
         if (config('database.default') === 'sqlite') {

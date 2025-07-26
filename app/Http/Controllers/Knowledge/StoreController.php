@@ -9,15 +9,20 @@ use App\Services\GitContextService;
 
 class StoreController
 {
-    public function __invoke(StoreKnowledgeRequest $request, GitContextService $gitContextService)
+    public function __invoke(StoreKnowledgeRequest $request, GitContextService $gitContextService): KnowledgeResource
     {
+        $user = $request->user();
+        if (!$user) {
+            abort(401, 'Unauthenticated');
+        }
+        
         $validated = $request->validated();
 
         // Handle git context if provided
         $gitContextId = $gitContextService->findOrCreateContext($validated['git_context'] ?? null);
 
         $knowledge = Knowledge::create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'git_context_id' => $gitContextId,
             'title' => $validated['title'],
             'content' => $validated['content'],

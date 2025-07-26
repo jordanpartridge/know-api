@@ -4,11 +4,12 @@ includes:
 parameters:
     paths:
         - app/
-    
-    level: 5
-    
+
+    level: 8
+
     ignoreErrors:
         - '#Access to an undefined property .+::\$[a-zA-Z_]+#'
         - '#Call to an undefined method .+::isActivated\(\)#'
-    
+        - '#Method .+ return type with generic class .+ does not specify its types#'
+
     excludePaths: []

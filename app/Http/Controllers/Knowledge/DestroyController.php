@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class DestroyController
 {
-    public function __invoke(Request $request, Knowledge $knowledge)
+    public function __invoke(Request $request, Knowledge $knowledge): \Illuminate\Http\JsonResponse
     {
         $knowledge->delete();
 

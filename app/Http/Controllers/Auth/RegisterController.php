@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController
 {
-    public function __invoke(RegisterRequest $request)
+    public function __invoke(RegisterRequest $request): UserResource
     {
         $validated = $request->validated();
 

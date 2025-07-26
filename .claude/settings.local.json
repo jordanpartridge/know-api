@@ -10,7 +10,8 @@
       "Bash(./vendor/bin/phpstan analyse --memory-limit=256M)",
       "Bash(composer quality:*)",
       "Bash(nmap:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(./vendor/bin/phpstan analyse:*)"
     ],
     "deny": []
   }

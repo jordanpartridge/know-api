@@ -13,7 +13,7 @@ class LoginController
     /**
      * Handle the incoming request.
      */
-    public function __invoke(LoginRequest $request)
+    public function __invoke(LoginRequest $request): LoginResource
     {
         $user = User::where('email', $request->email)->first();
 

@@ -7,7 +7,7 @@ use App\Models\Tag;
 
 class TagController
 {
-    public function __invoke()
+    public function __invoke(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return TagResource::collection(Tag::all());
     }
