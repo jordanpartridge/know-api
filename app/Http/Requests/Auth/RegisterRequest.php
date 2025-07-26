@@ -12,12 +12,15 @@ class RegisterRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, list<string|\Illuminate\Validation\Rules\Password>>
+     */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults() ?? 'min:8'],
         ];
     }
 }

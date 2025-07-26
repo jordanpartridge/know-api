@@ -13,9 +13,36 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/auth/logout', App\Http\Controllers\Auth\LogoutController::class);
+        // Authentication endpoints
+        Route::prefix('auth')->group(function () {
+            Route::post('/logout', App\Http\Controllers\Auth\LogoutController::class);
+        });
 
-        // Knowledge API endpoints (protected) - TODO: Create KnowledgeController
-        // Route::apiResource('knowledge', App\Http\Controllers\KnowledgeController::class);
+        // Knowledge management endpoints
+        Route::prefix('knowledge')->name('knowledge.')->group(function () {
+            Route::get('/', App\Http\Controllers\Knowledge\IndexController::class)->name('index');
+            Route::post('/', App\Http\Controllers\Knowledge\StoreController::class)->name('store');
+
+            // Routes requiring ownership authorization
+            Route::middleware('can:view,knowledge')->group(function () {
+                Route::get('/{knowledge}', App\Http\Controllers\Knowledge\ShowController::class)->name('show');
+            });
+
+            Route::middleware('can:update,knowledge')->group(function () {
+                Route::put('/{knowledge}', App\Http\Controllers\Knowledge\UpdateController::class)->name('update');
+            });
+
+            Route::middleware('can:delete,knowledge')->group(function () {
+                Route::delete('/{knowledge}', App\Http\Controllers\Knowledge\DestroyController::class)->name('destroy');
+            });
+        });
+
+        // Tag management
+        Route::get('/tags', App\Http\Controllers\TagController::class)->name('tags.index');
+
+        // Search endpoints
+        Route::prefix('search')->name('search.')->group(function () {
+            Route::get('/knowledge', App\Http\Controllers\Knowledge\SearchController::class)->name('knowledge');
+        });
     });
 });

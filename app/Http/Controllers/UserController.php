@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class UserController
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): UserResource
     {
         return new UserResource($request->user());
     }
