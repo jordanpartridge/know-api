@@ -11,10 +11,10 @@ class IndexController
     public function __invoke(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated');
         }
-        
+
         $query = Knowledge::with(['user', 'gitContext', 'tags'])
             ->where('user_id', $user->id);
 

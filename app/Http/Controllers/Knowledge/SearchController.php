@@ -16,12 +16,12 @@ class SearchController
             $query->search($request->q);
         }
 
-        // Can search public knowledge or user's own knowledge  
+        // Can search public knowledge or user's own knowledge
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated');
         }
-        
+
         $query->where(function ($q) use ($user) {
             $q->where('is_public', true)
                 ->orWhere('user_id', $user->id);

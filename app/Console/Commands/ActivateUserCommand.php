@@ -63,8 +63,9 @@ class ActivateUserCommand extends Command
             );
 
             $user = $recentUsers->find($userId);
-            if (!$user) {
+            if (! $user) {
                 $this->error('User not found.');
+
                 return;
             }
         } elseif ($method === 'search') {
@@ -94,8 +95,9 @@ class ActivateUserCommand extends Command
             }
 
             $user = User::withInactive()->find($userId);
-            if (!$user) {
+            if (! $user) {
                 $this->error('User not found.');
+
                 return;
             }
         } else {
@@ -121,8 +123,9 @@ class ActivateUserCommand extends Command
                 );
 
                 $user = $recentUsers->find($userId);
-                if (!$user) {
+                if (! $user) {
                     $this->error('User not found.');
+
                     return;
                 }
             } else {
@@ -152,8 +155,9 @@ class ActivateUserCommand extends Command
                 }
 
                 $user = User::withInactive()->find($userId);
-                if (!$user) {
+                if (! $user) {
                     $this->error('User not found.');
+
                     return;
                 }
             }

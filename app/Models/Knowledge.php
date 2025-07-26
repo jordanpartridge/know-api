@@ -49,7 +49,7 @@ class Knowledge extends Model
     }
 
     /**
-     * @param Builder<Knowledge> $query
+     * @param  Builder<Knowledge>  $query
      * @return Builder<Knowledge>
      */
     public function scopePublic(Builder $query): Builder
@@ -58,7 +58,7 @@ class Knowledge extends Model
     }
 
     /**
-     * @param Builder<Knowledge> $query
+     * @param  Builder<Knowledge>  $query
      * @return Builder<Knowledge>
      */
     public function scopeByType(Builder $query, string $type): Builder
@@ -67,7 +67,7 @@ class Knowledge extends Model
     }
 
     /**
-     * @param Builder<Knowledge> $query
+     * @param  Builder<Knowledge>  $query
      * @return Builder<Knowledge>
      */
     public function scopeSearch(Builder $query, string $search): Builder

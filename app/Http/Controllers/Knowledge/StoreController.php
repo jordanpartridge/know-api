@@ -12,10 +12,10 @@ class StoreController
     public function __invoke(StoreKnowledgeRequest $request, GitContextService $gitContextService): KnowledgeResource
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated');
         }
-        
+
         $validated = $request->validated();
 
         // Handle git context if provided

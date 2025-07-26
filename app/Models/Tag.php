@@ -34,7 +34,7 @@ class Tag extends Model
     }
 
     /**
-     * @param Builder<Tag> $query
+     * @param  Builder<Tag>  $query
      * @return Builder<Tag>
      */
     public function scopeBySlug(Builder $query, string $slug): Builder

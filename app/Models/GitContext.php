@@ -26,7 +26,7 @@ class GitContext extends Model
     }
 
     /**
-     * @param Builder<GitContext> $query
+     * @param  Builder<GitContext>  $query
      * @return Builder<GitContext>
      */
     public function scopeByRepository(Builder $query, string $repository): Builder
@@ -35,7 +35,7 @@ class GitContext extends Model
     }
 
     /**
-     * @param Builder<GitContext> $query
+     * @param  Builder<GitContext>  $query
      * @return Builder<GitContext>
      */
     public function scopeByBranch(Builder $query, string $branch): Builder

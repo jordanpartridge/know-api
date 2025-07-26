@@ -9,7 +9,7 @@ class GitContextService
     /**
      * Find or create a git context based on repository and branch.
      *
-     * @param array<string, mixed>|null $gitData
+     * @param  array<string, mixed>|null  $gitData
      */
     public function findOrCreateContext(?array $gitData): ?int
     {
