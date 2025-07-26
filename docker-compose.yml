@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: know-api
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./storage:/var/www/storage
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=know_api
+      - DB_USERNAME=know_user
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - know-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: know-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/ssl:/etc/ssl/certs
+    depends_on:
+      - app
+    networks:
+      - know-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: know-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: know_api
+      POSTGRES_USER: know_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - know-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: know-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - know-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  know-network:
+    driver: bridge
