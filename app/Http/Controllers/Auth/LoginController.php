@@ -15,11 +15,17 @@ class LoginController
      */
     public function __invoke(LoginRequest $request): LoginResource
     {
-        $user = User::where('email', $request->email)->first();
+        $user = User::withInactive()->where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        if (! $user->isActivated()) {
+            throw ValidationException::withMessages([
+                'email' => ['Your account is not activated. Please contact support.'],
             ]);
         }
 
