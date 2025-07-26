@@ -18,9 +18,9 @@ Route::prefix('v1')->group(function () {
         // Knowledge API endpoints (protected) - Single action controllers
         Route::get('/knowledge', App\Http\Controllers\Knowledge\IndexController::class);
         Route::post('/knowledge', App\Http\Controllers\Knowledge\StoreController::class);
-        Route::get('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\ShowController::class);
-        Route::put('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\UpdateController::class);
-        Route::delete('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\DestroyController::class);
+        Route::get('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\ShowController::class)->middleware('can:view,knowledge');
+        Route::put('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\UpdateController::class)->middleware('can:update,knowledge');
+        Route::delete('/knowledge/{knowledge}', App\Http\Controllers\Knowledge\DestroyController::class)->middleware('can:delete,knowledge');
 
         // Tag management endpoints
         Route::get('/tags', App\Http\Controllers\TagController::class);

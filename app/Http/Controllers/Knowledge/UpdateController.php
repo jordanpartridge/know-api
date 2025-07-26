@@ -6,16 +6,11 @@ use App\Http\Requests\StoreKnowledgeRequest;
 use App\Http\Resources\KnowledgeResource;
 use App\Models\GitContext;
 use App\Models\Knowledge;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UpdateController
 {
-    use AuthorizesRequests;
-
     public function __invoke(StoreKnowledgeRequest $request, Knowledge $knowledge)
     {
-        $this->authorize('update', $knowledge);
-
         $validated = $request->validated();
 
         // Handle git context if provided
