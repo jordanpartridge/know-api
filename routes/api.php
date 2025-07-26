@@ -22,16 +22,16 @@ Route::prefix('v1')->group(function () {
         Route::prefix('knowledge')->name('knowledge.')->group(function () {
             Route::get('/', App\Http\Controllers\Knowledge\IndexController::class)->name('index');
             Route::post('/', App\Http\Controllers\Knowledge\StoreController::class)->name('store');
-            
+
             // Routes requiring ownership authorization
             Route::middleware('can:view,knowledge')->group(function () {
                 Route::get('/{knowledge}', App\Http\Controllers\Knowledge\ShowController::class)->name('show');
             });
-            
+
             Route::middleware('can:update,knowledge')->group(function () {
                 Route::put('/{knowledge}', App\Http\Controllers\Knowledge\UpdateController::class)->name('update');
             });
-            
+
             Route::middleware('can:delete,knowledge')->group(function () {
                 Route::delete('/{knowledge}', App\Http\Controllers\Knowledge\DestroyController::class)->name('destroy');
             });

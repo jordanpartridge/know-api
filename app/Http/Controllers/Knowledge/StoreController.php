@@ -4,27 +4,17 @@ namespace App\Http\Controllers\Knowledge;
 
 use App\Http\Requests\StoreKnowledgeRequest;
 use App\Http\Resources\KnowledgeResource;
-use App\Models\GitContext;
 use App\Models\Knowledge;
+use App\Services\GitContextService;
 
 class StoreController
 {
-    public function __invoke(StoreKnowledgeRequest $request)
+    public function __invoke(StoreKnowledgeRequest $request, GitContextService $gitContextService)
     {
         $validated = $request->validated();
 
         // Handle git context if provided
-        $gitContextId = null;
-        if (isset($validated['git_context'])) {
-            $gitContext = GitContext::firstOrCreate(
-                [
-                    'repository_name' => $validated['git_context']['repository_name'] ?? null,
-                    'branch_name' => $validated['git_context']['branch_name'] ?? null,
-                ],
-                $validated['git_context']
-            );
-            $gitContextId = $gitContext->id;
-        }
+        $gitContextId = $gitContextService->findOrCreateContext($validated['git_context'] ?? null);
 
         $knowledge = Knowledge::create([
             'user_id' => $request->user()->id,
