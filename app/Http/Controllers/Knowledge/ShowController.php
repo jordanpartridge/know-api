@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Knowledge;
 
 use App\Http\Resources\KnowledgeResource;
 use App\Models\Knowledge;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class ShowController
 {
+    use AuthorizesRequests;
+
     public function __invoke(Request $request, Knowledge $knowledge)
     {
-        // Check if user owns this knowledge or if it's public
-        if ($knowledge->user_id !== $request->user()->id && ! $knowledge->is_public) {
-            abort(403, 'You do not have permission to view this knowledge.');
-        }
+        $this->authorize('view', $knowledge);
 
         return new KnowledgeResource($knowledge->load(['user', 'gitContext', 'tags']));
     }

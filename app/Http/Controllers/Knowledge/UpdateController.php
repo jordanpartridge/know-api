@@ -6,15 +6,15 @@ use App\Http\Requests\StoreKnowledgeRequest;
 use App\Http\Resources\KnowledgeResource;
 use App\Models\GitContext;
 use App\Models\Knowledge;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UpdateController
 {
+    use AuthorizesRequests;
+
     public function __invoke(StoreKnowledgeRequest $request, Knowledge $knowledge)
     {
-        // Check if user owns this knowledge
-        if ($knowledge->user_id !== $request->user()->id) {
-            abort(403, 'You do not have permission to update this knowledge.');
-        }
+        $this->authorize('update', $knowledge);
 
         $validated = $request->validated();
 

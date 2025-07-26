@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Knowledge;
 
 use App\Models\Knowledge;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class DestroyController
 {
+    use AuthorizesRequests;
+
     public function __invoke(Request $request, Knowledge $knowledge)
     {
-        // Check if user owns this knowledge
-        if ($knowledge->user_id !== $request->user()->id) {
-            abort(403, 'You do not have permission to delete this knowledge.');
-        }
+        $this->authorize('delete', $knowledge);
 
         $knowledge->delete();
 
