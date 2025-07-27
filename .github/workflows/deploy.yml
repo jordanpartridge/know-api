@@ -1,0 +1,252 @@
+name: Deploy Know API
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    if: ${{ !inputs.skip_tests }}
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: know_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo, pdo_pgsql, redis, bcmath
+          coverage: none
+
+      - name: Copy environment file
+        run: cp .env.example .env.testing
+
+      - name: Update test environment
+        run: |
+          sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=pgsql/' .env.testing
+          sed -i 's/DB_HOST=127.0.0.1/DB_HOST=localhost/' .env.testing
+          sed -i 's/DB_DATABASE=laravel/DB_DATABASE=know_test/' .env.testing
+          sed -i 's/DB_USERNAME=root/DB_USERNAME=postgres/' .env.testing
+          sed -i 's/DB_PASSWORD=/DB_PASSWORD=test_password/' .env.testing
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Generate application key
+        run: php artisan key:generate --env=testing
+
+      - name: Run database migrations
+        run: php artisan migrate --env=testing --force
+
+      - name: Run tests
+        run: php artisan test
+
+      - name: Run Laravel Pint
+        run: ./vendor/bin/pint --test
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan analyse --memory-limit=256M
+
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: always() && (needs.test.result == 'success' || inputs.skip_tests)
+    
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+      digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Output image
+        id: image
+        run: echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create backup before deployment
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            echo "🗃️ Creating pre-deployment backup..."
+            docker exec know-postgres pg_dump -U know_user -d know_api > /tmp/pre_deploy_backup_$(date +%Y%m%d_%H%M%S).sql
+            
+            # Upload backup to S3 if configured
+            if [ ! -z "$AWS_ACCESS_KEY_ID" ]; then
+              aws s3 cp /tmp/pre_deploy_backup_*.sql s3://know-api-backups/deployments/ || echo "S3 backup failed"
+            fi
+          '
+
+      - name: Deploy new version
+        env:
+          IMAGE: ${{ needs.build.outputs.image }}
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            echo "🚀 Starting deployment..."
+            cd /tmp
+            
+            # Pull new image
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ${{ env.IMAGE }}
+            
+            # Update docker-compose to use new image
+            export NEW_IMAGE="${{ env.IMAGE }}"
+            sed -i "s|image:.*know.*|image: $NEW_IMAGE|" docker-compose.yml
+            
+            # Rolling update with health checks
+            echo "🔄 Performing rolling update..."
+            
+            # Start new container
+            docker-compose up -d --no-deps app
+            
+            # Wait for health check
+            echo "⏳ Waiting for application to be ready..."
+            for i in {1..30}; do
+              if curl -f http://localhost/health > /dev/null 2>&1; then
+                echo "✅ Application is healthy"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "❌ Health check timeout"
+                exit 1
+              fi
+              sleep 10
+            done
+            
+            # Run migrations
+            echo "🔄 Running migrations..."
+            docker exec know-api php artisan migrate --force
+            
+            # Clear caches
+            echo "🧹 Clearing caches..."
+            docker exec know-api php artisan config:cache
+            docker exec know-api php artisan route:cache
+            docker exec know-api php artisan view:cache
+            
+            # Final health check
+            echo "🔍 Final health check..."
+            if curl -f http://localhost/health > /dev/null 2>&1; then
+              echo "✅ Deployment successful"
+            else
+              echo "❌ Final health check failed"
+              exit 1
+            fi
+            
+            # Cleanup old images
+            docker image prune -f
+          '
+
+      - name: Verify deployment
+        run: |
+          echo "🔍 Verifying deployment..."
+          sleep 10
+          
+          if curl -f https://know.jordanpartridge.us/health; then
+            echo "✅ Production deployment verified"
+          else
+            echo "❌ Production verification failed"
+            exit 1
+          fi
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo "🌐 Application: https://know.jordanpartridge.us"
+          echo "🐳 Image: ${{ needs.build.outputs.image }}"
+          echo "📝 Commit: ${{ github.sha }}"
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed, attempting rollback..."
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            cd /tmp
+            
+            # Restore from backup if available
+            LATEST_BACKUP=$(ls -t /tmp/pre_deploy_backup_*.sql 2>/dev/null | head -1)
+            if [ ! -z "$LATEST_BACKUP" ]; then
+              echo "🔄 Restoring from backup: $LATEST_BACKUP"
+              docker exec -i know-postgres psql -U know_user -d know_api < "$LATEST_BACKUP"
+            fi
+            
+            # Restart containers
+            docker-compose restart
+          '

@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', App\Http\Controllers\UserController::class);
 
+// Webhook endpoint (no auth required)
+Route::post('/webhook/deploy', App\Http\Controllers\WebhookController::class);
+
 // API Routes for Knowledge Management
 Route::prefix('v1')->group(function () {
     // Authentication routes - with rate limiting
