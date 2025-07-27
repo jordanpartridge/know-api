@@ -14,7 +14,10 @@
       "Bash(./vendor/bin/phpstan analyse:*)",
       "Bash(ssh:*)",
       "Bash(aws ec2 describe-instances:*)",
-      "Bash(aws route53:*)"
+      "Bash(aws route53:*)",
+      "Bash(gh pr view:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

@@ -130,7 +130,7 @@ class WebhookController
 
         while ($attempt < $maxAttempts) {
             try {
-                $result = Process::run('curl -f http://localhost/health');
+                $result = Process::run('curl -f --connect-timeout 5 http://localhost/health');
 
                 if ($result->successful()) {
                     Log::info('✅ New container is healthy');
