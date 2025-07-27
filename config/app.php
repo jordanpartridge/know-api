@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | GitHub Webhook Secret
+    |--------------------------------------------------------------------------
+    |
+    | This value is used to verify GitHub webhook signatures for automated
+    | deployment. Set this in your ".env" file to match your GitHub webhook
+    | configuration.
+    |
+    */
+
+    'webhook_secret' => env('WEBHOOK_SECRET'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

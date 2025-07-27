@@ -11,7 +11,10 @@
       "Bash(composer quality:*)",
       "Bash(nmap:*)",
       "Bash(git add:*)",
-      "Bash(./vendor/bin/phpstan analyse:*)"
+      "Bash(./vendor/bin/phpstan analyse:*)",
+      "Bash(ssh:*)",
+      "Bash(aws ec2 describe-instances:*)",
+      "Bash(aws route53:*)"
     ],
     "deny": []
   }
