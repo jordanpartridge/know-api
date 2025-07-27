@@ -62,4 +62,3 @@ System is back to normal\!
         'statusCode': 200,
         'body': json.dumps('Alert processed')
     }
-EOF < /dev/null
