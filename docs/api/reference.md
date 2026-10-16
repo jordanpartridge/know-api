@@ -138,7 +138,7 @@ Revokes the current API token. Requires a valid Sanctum token.
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 
 **cURL Example:**
 ```bash
@@ -178,7 +178,7 @@ Returns the currently authenticated user's information.
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 
 **cURL Example:**
 ```bash
@@ -265,7 +265,7 @@ Returns paginated list of the authenticated user's knowledge entries. Supports f
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 
 **cURL Example:**
 ```bash
@@ -341,7 +341,7 @@ Creates a new knowledge entry. Requires a valid Sanctum token.
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 | 422 | Validation error | `{"errors": {"title": ["The title field is required."], "content": ["The content field is required."], "type": ["The selected type is invalid."]}}` |
 
 **cURL Example:**
@@ -408,7 +408,7 @@ Returns a specific knowledge entry. Requires a valid Sanctum token and proper au
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 | 403 | Forbidden (not owner and not public) | (Laravel default 403 response) |
 
 **cURL Example:**
@@ -470,7 +470,7 @@ Updates an existing knowledge entry. Requires a valid Sanctum token and ownershi
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 | 403 | Forbidden (not owner) | (Laravel default 403 response) |
 | 422 | Validation error | `{"errors": {"title": ["The title field is required."], "content": ["The content field is required."]}}` |
 
@@ -509,7 +509,7 @@ Deletes a knowledge entry. Requires a valid Sanctum token and ownership.
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 | 403 | Forbidden (not owner) | (Laravel default 403 response) |
 
 **cURL Example:**
@@ -579,7 +579,7 @@ Searches across accessible knowledge entries (public or user's own). Requires a 
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 
 **cURL Example:**
 ```bash
@@ -621,7 +621,7 @@ Returns all available tags in the system.
 
 | Status | Description | Response |
 |--------|-------------|----------|
-| 401 | Unauthenticated | `{"message": "Unauthenticated"}` |
+| 401 | Unauthenticated | `{"message": "Unauthenticated."}` |
 
 **cURL Example:**
 ```bash
@@ -690,11 +690,11 @@ curl -X POST http://localhost:8000/webhook/deploy \
 
 ### Validation Errors (422)
 
-Laravel returns validation errors in the following format:
+Laravel 12 returns validation errors in the following format (`message` is the first error, plus a count of the rest):
 
 ```json
 {
-  "message": "The given data was invalid.",
+  "message": "The title field is required. (and 1 more error)",
   "errors": {
     "field_name": ["Error message 1", "Error message 2"]
   }
