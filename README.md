@@ -5,6 +5,10 @@ A Laravel-based knowledge management API for capturing, organizing, and searchin
 [![CI](https://github.com/jordanpartridge/know-api/workflows/CI/badge.svg)](https://github.com/jordanpartridge/know-api/actions)
 [![Tests](https://img.shields.io/badge/tests-22%20passed-green)](https://github.com/jordanpartridge/know-api)
 
+## API Documentation
+
+- [API Reference](docs/api/reference.md) - Complete API documentation with cURL examples and error responses
+
 ## Features
 
 - 🔐 **User Authentication** - Sanctum-based API authentication with activation system
