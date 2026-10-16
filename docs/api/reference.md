@@ -12,9 +12,9 @@ Authorization: Bearer {your-token}
 
 ### Register User
 
-Creates a new user account.rate limited to 5 requests per minute.
+Creates a new user account. Rate limited to 5 requests per minute.
 
-**Endpoint:** `POST /v1/auth/register`
+**Endpoint:** `POST /api/v1/auth/register`
 
 **Authentication:** None (rate limited)
 
@@ -68,7 +68,7 @@ curl -X POST http://localhost:8000/api/v1/auth/register \
 
 Authenticates a user and returns an API token. Rate limited to 5 requests per minute.
 
-**Endpoint:** `POST /v1/auth/login`
+**Endpoint:** `POST /api/v1/auth/login`
 
 **Authentication:** None (rate limited)
 
@@ -123,7 +123,7 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
 
 Revokes the current API token. Requires a valid Sanctum token.
 
-**Endpoint:** `POST /v1/auth/logout`
+**Endpoint:** `POST /api/v1/auth/logout`
 
 **Authentication:** Required (Sanctum)
 
@@ -154,7 +154,7 @@ curl -X POST http://localhost:8000/api/v1/auth/logout \
 
 Returns the currently authenticated user's information.
 
-**Endpoint:** `GET /user`
+**Endpoint:** `GET /api/user`
 
 **Authentication:** Required (Sanctum)
 
@@ -194,7 +194,7 @@ curl -X GET http://localhost:8000/api/user \
 
 Returns paginated list of the authenticated user's knowledge entries. Supports filtering by type and tag, and searching.
 
-**Endpoint:** `GET /v1/knowledge`
+**Endpoint:** `GET /api/v1/knowledge`
 
 **Authentication:** Required (Sanctum)
 
@@ -279,7 +279,7 @@ curl -X GET "http://localhost:8000/api/v1/knowledge?type=note&tag=laravel&search
 
 Creates a new knowledge entry. Requires a valid Sanctum token.
 
-**Endpoint:** `POST /v1/knowledge`
+**Endpoint:** `POST /api/v1/knowledge`
 
 **Authentication:** Required (Sanctum)
 
@@ -363,7 +363,7 @@ curl -X POST http://localhost:8000/api/v1/knowledge \
 
 Returns a specific knowledge entry. Requires a valid Sanctum token and proper authorization (owner or public).
 
-**Endpoint:** `GET /v1/knowledge/{id}`
+**Endpoint:** `GET /api/v1/knowledge/{id}`
 
 **Authentication:** Required (Sanctum)
 
@@ -423,7 +423,7 @@ curl -X GET http://localhost:8000/api/v1/knowledge/1 \
 
 Updates an existing knowledge entry. Requires a valid Sanctum token and ownership.
 
-**Endpoint:** `PUT /v1/knowledge/{id}`
+**Endpoint:** `PUT /api/v1/knowledge/{id}`
 
 **Authentication:** Required (Sanctum)
 
@@ -492,7 +492,7 @@ curl -X PUT http://localhost:8000/api/v1/knowledge/1 \
 
 Deletes a knowledge entry. Requires a valid Sanctum token and ownership.
 
-**Endpoint:** `DELETE /v1/knowledge/{id}`
+**Endpoint:** `DELETE /api/v1/knowledge/{id}`
 
 **Authentication:** Required (Sanctum)
 
@@ -526,12 +526,12 @@ curl -X DELETE http://localhost:8000/api/v1/knowledge/1 \
 
 Searches across accessible knowledge entries (public or user's own). Requires a valid Sanctum token.
 
-**Endpoint:** `GET /v1/search/knowledge`
+**Endpoint:** `GET /api/v1/search/knowledge`
 
 **Authentication:** Required (Sanctum)
 
 **Query Parameters:**
-- `q` (required): Search query string
+- `q` (optional): Search query string
 
 **Success Response (200):**
 ```json
@@ -595,7 +595,7 @@ curl -X GET "http://localhost:8000/api/v1/search/knowledge?q=Laravel" \
 
 Returns all available tags in the system.
 
-**Endpoint:** `GET /v1/tags`
+**Endpoint:** `GET /api/v1/tags`
 
 **Authentication:** Required (Sanctum)
 
@@ -694,6 +694,7 @@ Laravel returns validation errors in the following format:
 
 ```json
 {
+  "message": "The given data was invalid.",
   "errors": {
     "field_name": ["Error message 1", "Error message 2"]
   }
@@ -704,7 +705,7 @@ Laravel returns validation errors in the following format:
 
 ```json
 {
-  "message": "Unauthenticated"
+  "message": "Unauthenticated."
 }
 ```
 
